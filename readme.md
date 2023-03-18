@@ -12,3 +12,7 @@ Also We pass the start=1 argument to start the line numbers at 1 instead of the 
 Finally, we print the results to the console.
 
 Make sure to replace 'example.txt' with the path to your own text file. If you haven't already installed the NLTK library, you can do so by running pip install nltk in your terminal or command prompt. You'll also need to download the necessary NLTK data by running nltk.download('punkt') at least once before running the script.
+
+Also I added two new options in GUI version: "Minimum word length" and "Number of most common words", which can be set in the GUI interface. The default values for these options are set to 3 and 10, respectively.
+
+When the "Analyze Text" button is clicked, the script reads the text file specified in the file path field and analyzes it using the minimum word length and number of most common words specified in the GUI. The results are displayed in the output text field.
