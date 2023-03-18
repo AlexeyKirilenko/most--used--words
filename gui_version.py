@@ -1,60 +1,71 @@
-import nltk
-nltk.download('punkt')
-from nltk.tokenize import word_tokenize
-from collections import Counter
 import tkinter as tk
 from tkinter import filedialog
+import collections
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title('Word Frequency Counter')
-        self.pack()
+        self.master.title("Text Analyzer")
+        self.grid()
         self.create_widgets()
 
     def create_widgets(self):
-        # Create the "Import File" button
-        self.import_button = tk.Button(self, text='Import File', command=self.import_file)
-        self.import_button.pack(side='left')
+        self.file_label = tk.Label(self, text="Select a text file:")
+        self.file_label.grid(row=0, column=0)
 
-        # Create the "Start" button
-        self.start_button = tk.Button(self, text='Start', command=self.start_analysis)
-        self.start_button.pack(side='left')
+        self.file_path_var = tk.StringVar()
+        self.file_path_entry = tk.Entry(self, textvariable=self.file_path_var, width=50)
+        self.file_path_entry.grid(row=0, column=1)
 
-        # Create the text box for displaying results
-        self.results_box = tk.Text(self, width=60, height=20)
-        self.results_box.pack(side='top', fill='both', expand=True)
+        self.browse_button = tk.Button(self, text="Browse", command=self.browse_file)
+        self.browse_button.grid(row=0, column=2)
 
-    def import_file(self):
-        # Use a file dialog to select a text file
+        self.len_label = tk.Label(self, text="Minimum word length:")
+        self.len_label.grid(row=1, column=0)
+
+        self.len_var = tk.StringVar()
+        self.len_var.set("3")
+        self.len_entry = tk.Entry(self, textvariable=self.len_var, width=10)
+        self.len_entry.grid(row=1, column=1)
+
+        self.count_label = tk.Label(self, text="Number of most common words:")
+        self.count_label.grid(row=2, column=0)
+
+        self.count_var = tk.StringVar()
+        self.count_var.set("10")
+        self.count_entry = tk.Entry(self, textvariable=self.count_var, width=10)
+        self.count_entry.grid(row=2, column=1)
+
+        self.analyze_button = tk.Button(self, text="Analyze Text", command=self.analyze_text)
+        self.analyze_button.grid(row=3, column=0, columnspan=3)
+
+        self.output_text = tk.Text(self, height=10, width=50)
+        self.output_text.grid(row=4, column=0, columnspan=3)
+
+    def browse_file(self):
         file_path = filedialog.askopenfilename()
+        if file_path:
+            self.file_path_var.set(file_path)
 
-        # Open the selected text file with UTF-8 encoding and read its contents
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as txt_file:
-            self.text = txt_file.read()
+    def analyze_text(self):
+        file_path = self.file_path_var.get()
+        min_len = int(self.len_var.get())
+        num_words = int(self.count_var.get())
 
-    def start_analysis(self):
-        # Tokenize the text into words
-        words = word_tokenize(self.text)
+        word_counts = collections.Counter()
 
-        # Filter out words shorter than 4 letters and convert to lowercase
-        words = [word.lower() for word in words if len(word) >= 4]
+        with open(file_path, 'r', encoding="utf8", errors='ignore') as f:
+            for line_num, line in enumerate(f, start=1):
+                for word in line.split():
+                    if len(word) >= min_len:
+                        word_counts[word] += 1
 
-        # Count the frequency of each word
-        word_counts = Counter(words)
+        self.output_text.delete('1.0', tk.END)
 
-        # Find the 10 most common words and their frequencies
-        most_common = word_counts.most_common(100)
-
-        # Clear the results box
-        self.results_box.delete('1.0', 'end')
-
-        # Display the results in the results box
-        self.results_box.insert('end', 'The 100 most common words starting from 4 letters are:\n\n')
-        for i, (word, count) in enumerate(most_common, start=1):
-            result = f'{i}. {word}: {count}\n'
-            self.results_box.insert('end', result)
+        for idx, (word, count) in enumerate(word_counts.most_common(num_words), start=1):
+            self.output_text.insert(tk.END, f"{idx}. {word} = {count}\n")
 
 
 root = tk.Tk()
